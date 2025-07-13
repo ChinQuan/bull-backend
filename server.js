@@ -1,1 +1,2 @@
-5AzyUg645hFppnV8PN6drjKBYLFtPyoMKfVVZTSTZga8
+const privateKey = process.env.PRIVATE_KEY;
+
