@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>SPIN TO WIN</title>
+  <title>Spin to Win</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -14,16 +14,7 @@
       color: #fff;
       text-align: center;
     }
-    #balanceDisplay {
-      position: fixed;
-      top: 15px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border: 2px solid #FFD700;
-      border-radius: 12px;
-      font-size: 14px;
-    }
+
     #game {
       background-color: rgba(0, 0, 0, 0.7);
       margin: 100px auto;
@@ -33,11 +24,13 @@
       border-radius: 16px;
       box-shadow: 0 0 20px #ffd700;
     }
+
     h1 {
       color: #ffd700;
       margin-bottom: 30px;
       text-shadow: 2px 2px #000;
     }
+
     .button {
       background: #222;
       border: 2px solid #FFD700;
@@ -49,10 +42,12 @@
       border-radius: 10px;
       transition: all 0.2s ease-in-out;
     }
+
     .button:hover {
       background: #FFD700;
       color: #000;
     }
+
     .highlight {
       font-size: 22px;
       color: #00ffcc;
@@ -60,10 +55,12 @@
       margin-top: 20px;
       animation: blink 0.7s infinite alternate;
     }
+
     @keyframes blink {
       from { opacity: 1; }
       to { opacity: 0.4; }
     }
+
     #history {
       margin-top: 30px;
       font-size: 12px;
@@ -71,10 +68,25 @@
       overflow-y: auto;
       text-align: left;
     }
-    .gold { color: #FFD700; }
+
+    .gold {
+      color: #FFD700;
+    }
+
     .result {
       font-size: 20px;
       margin-top: 20px;
+    }
+
+    #balanceDisplay {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px 20px;
+      border: 2px solid #FFD700;
+      border-radius: 12px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -93,7 +105,8 @@
 
   <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
 
-  <!-- SKRYPT -->
-  <script src="script.js"></script>
+  <!-- ✅ Ładowanie skryptu JS -->
+  <script src="./script.js"></script>
 </body>
 </html>
+
