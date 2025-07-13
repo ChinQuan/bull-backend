@@ -1,99 +1,70 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-  <meta charset="UTF-8" />
-  <title>SPIN TO WIN</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: url('https://images.unsplash.com/photo-1633158829585-23ba8b304bfd') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Press Start 2P', cursive;
-      color: #fff;
-      text-align: center;
-    }
-    #balanceDisplay {
-      position: fixed;
-      top: 15px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border: 2px solid #FFD700;
-      border-radius: 12px;
-      font-size: 14px;
-    }
-    #game {
-      background-color: rgba(0, 0, 0, 0.7);
-      margin: 100px auto;
-      padding: 40px;
-      width: 90%;
-      max-width: 600px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px #ffd700;
-    }
-    h1 {
-      color: #ffd700;
-      margin-bottom: 30px;
-      text-shadow: 2px 2px #000;
-    }
-    .button {
-      background: #222;
-      border: 2px solid #FFD700;
-      padding: 14px 30px;
-      margin: 10px;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: all 0.2s ease-in-out;
-    }
-    .button:hover {
-      background: #FFD700;
-      color: #000;
-    }
-    .highlight {
-      font-size: 22px;
-      color: #00ffcc;
-      display: block;
-      margin-top: 20px;
-      animation: blink 0.7s infinite alternate;
-    }
-    @keyframes blink {
-      from { opacity: 1; }
-      to { opacity: 0.4; }
-    }
-    #history {
-      margin-top: 30px;
-      font-size: 12px;
-      max-height: 150px;
-      overflow-y: auto;
-      text-align: left;
-    }
-    .gold { color: #FFD700; }
-    .result {
-      font-size: 20px;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-<body>
-  <div id="balanceDisplay">Saldo: 0 BULL</div>
+const API = 'https://bull-backend-71rj.onrender.com';
+let balance = 0;
+let currentWin = 0;
 
-  <div id="game">
-    <h1>🎰 SPIN TO WIN</h1>
-    <button class="button" id="depositBtn">➕ WPŁAĆ 30000 BULL</button>
-    <button class="button" id="spinBtn">SPIN (1000 BULL)</button>
+const depBtn = document.getElementById('depositBtn');
+const spinBtn = document.getElementById('spinBtn');
+const resultDiv = document.getElementById('result');
+const actionsDiv = document.getElementById('actions');
+const historyDiv = document.getElementById('history');
+const balanceDisplay = document.getElementById('balanceDisplay');
+const winSound = document.getElementById('winSound');
 
-    <div id="result" class="result"></div>
-    <div id="actions"></div>
-    <div id="history"></div>
-  </div>
+async function fetchBalance() {
+  const res = await fetch(`${API}/balance`);
+  const data = await res.json();
+  balance = data.balance;
+  balanceDisplay.textContent = `Saldo: ${balance} BULL`;
+}
+fetchBalance();
 
-  <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+depBtn.onclick = async () => {
+  const res = await fetch(`${API}/deposit`, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ value:30000 })
+  });
+  if(res.ok) {
+    await fetchBalance();
+    historyDiv.innerHTML = `<div>✅ Wpłaciłeś 30000 BULL</div>` + historyDiv.innerHTML;
+  } else alert('Wpłata nieudana');
+};
 
-  <!-- SKRYPT -->
-  <script src="script.js"></script>
-</body>
-</html>
+spinBtn.onclick = async () => {
+  spinBtn.disabled = true;
+  resultDiv.textContent = '⏳ Losowanie...';
+  actionsDiv.innerHTML = '';
+
+  const res = await fetch(`${API}/spin`, { method:'POST' });
+  if(!res.ok) { resultDiv.textContent='❌ Błąd zapłaty/spinu.'; spinBtn.disabled=false; return; }
+  const data = await res.json();
+  currentWin = data.win;
+  balance = data.balance;
+  balanceDisplay.textContent = `Saldo: ${balance} BULL`;
+  winSound.play();
+
+  resultDiv.innerHTML = `🎉 <span class="highlight">Trafiłeś ${currentWin} BULL!</span>`;
+  actionsDiv.innerHTML = `
+    <button class="button" id="dblBtn">🎲 DOUBLE</button>
+    <button class="button" id="takeBtn">💰 TAKE</button>
+  `;
+
+  document.getElementById('takeBtn').onclick = () => finalize('take');
+  document.getElementById('dblBtn').onclick = () => finalize('double');
+};
+
+async function finalize(action) {
+  const res = await fetch(`${API}/${action}`, { method:'POST' });
+  if(res.ok) {
+    const d = await res.json();
+    balance = d.balance;
+    balanceDisplay.textContent = `Saldo: ${balance} BULL`;
+    historyDiv.innerHTML = `<div>✅ ${action==='double'?'Podwoiłeś':'Zabrałeś'} ${d.win} BULL</div>` + historyDiv.innerHTML;
+  } else alert('Błąd akcji');
+  actionsDiv.innerHTML = '';
+  resultDiv.innerHTML = '';
+  spinBtn.disabled = false;
+}
+
+// Odświeżenie salda co 30s (opcjonalne)
+setInterval(fetchBalance, 30000);
